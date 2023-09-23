@@ -13,23 +13,26 @@ def fetch_prayer_times(city, country):
             return timings
         else:
             return None
+    except requests.exceptions.RequestException as e:
+        return f"Network error: {e}"
     except Exception as e:
-        return f"Unexpected error occurred {e}"
+        return f"Unexpected error: {e}"
 
 def gui_fetch_prayer_times():
     city = city_entry.get()
     country = country_entry.get()
     if city and country:
         prayer_timings = fetch_prayer_times(city, country)
-        result.delete(0, tk.END)  
-        if prayer_timings:
+        result.delete(0, tk.END)
+
+        if isinstance(prayer_timings, dict):
             result.insert(tk.END, f"Prayer Times for {city}, {country}:")
             for name, time in prayer_timings.items():
                 result.insert(tk.END, f"{name}: {time}")
         else:
-            result.insert(tk.END, "No prayer times available for the provided location.")
+            messagebox.showerror("Error", f"Unable to fetch prayer times for {city}, {country}.")
     else:
-        messagebox.showerror("Error", "Please enter a correct city and country name.")
+        messagebox.showerror("Error", "Please enter a city and country.")
 
 app = tk.Tk()
 app.title("Prayer Times")
